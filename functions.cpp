@@ -44,8 +44,11 @@ int forward() {
     char op;
     int a, b;
     while (std::cin >> token) {
-        if (is_digit(token))
-            numbers[top_n++] = token - '0';
+        if (is_digit(token)) {
+            ungetc(token, stdin);
+            std::cin >> a;
+            numbers[top_n++] = a;
+        }
         else if (is_op(token)) {
             while (top_s != 0 && 
                    preceden(token, symbols[top_s - 1])) {
