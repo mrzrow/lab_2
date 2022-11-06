@@ -1,4 +1,24 @@
 #include <iostream>
+#include <fstream>
+
+const int STR_LENGTH = 201;
+char expression[STR_LENGTH];
+
+void read_from_cin() {
+    std::cin.read(expression, STR_LENGTH - 1);
+    int s = std::cin.gcount();
+    expression[s] = '\0';
+}
+
+void read_from_file(char *in_name) {
+    std::ifstream in_f;
+    in_f.open(in_name);
+    char sym;
+    int i = 0;
+    while (in_f >> sym)
+        expression[i++] = sym;
+    in_f.close();
+}
 
 int is_digit(char a) {
     if (a >= '0' and a <= '9')
@@ -40,13 +60,17 @@ int forward() {
     char symbols[100];
     int numbers[100];
     int top_s = 0; int top_n = 0;
-    char token;
+    int exp_pointer = 0;
+    char token = expression[0];
     char op;
     int a, b;
-    while (std::cin >> token) {
+    while ((token = expression[exp_pointer++])) {
         if (is_digit(token)) {
-            ungetc(token, stdin);
-            std::cin >> a;
+            a = token - '0';
+            while (is_digit(expression[exp_pointer])) {
+                token = expression[exp_pointer++];
+                a = a * 10 + token - '0';
+            }
             numbers[top_n++] = a;
         }
         else if (is_op(token)) {
@@ -77,7 +101,7 @@ int forward() {
         b = numbers[--top_n];
         numbers[top_n++] = use_op(b, a, op);
     }  
-    std::cout << std::endl << numbers[--top_n] << std::endl;
+    std::cout << std::endl << "Answer: " << numbers[--top_n] << std::endl;
     return 0;
 }
 
@@ -85,13 +109,29 @@ int forward() {
 int reverse() {
     int a, b;
     char op;
-    std::cin >> a;
+    int exp_pointer = 0;
+    a = expression[exp_pointer++] - '0';
+    while (is_digit(expression[exp_pointer])) {
+        a = a * 10 + expression[exp_pointer++] - '0';
+    }
     
-    while (std::cin >> b) {
-        std::cin >> op;
-        a = use_op(a, b, op);    }
+    while (expression[exp_pointer]) {
+        if (!is_digit(expression[exp_pointer])) {
+            exp_pointer++;
+            continue;
+        }
+        b = expression[exp_pointer++] - '0';
+        while (is_digit(expression[exp_pointer]))
+            b = b * 10 + expression[exp_pointer++] - '0';
 
-    std::cout << std::endl << a << std::endl;
+        while (!is_op(expression[exp_pointer])) 
+            exp_pointer++;
+        op = expression[exp_pointer++];
+
+        a = use_op(a, b, op);
+    }
+
+    std::cout << std::endl << "Answer: " << a << std::endl;
     return 0;
 }
 
