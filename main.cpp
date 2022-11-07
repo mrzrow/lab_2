@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include "functions.h"
 
 int main(int argc, char ** argv) {
