@@ -8,7 +8,6 @@ void usage() {
     std::cout << "\nUSAGE: ./prog [ --forward ] [ --reverse ] [ --help ]\n";
     std::cout << "              [ --file <file_name> <form=(--forward, --reverse)> ]\n";
     std::cout << "\n------------------------------------Flags meaning-----------------------------------\n\n";
-    //std::cout << "./prog < '--file' = from console by default > < 'file_name' > < FLAG[ --forward, --reverse ] >" << std::endl;
     std::cout << "--forward  ------>  enter mathematical expression in normalized form" << std::endl;
     std::cout << "--reverse  ------>  enter mathematical expression in reverse polish notation form" << std::endl;
     std::cout << "--file     ------>  read mathematical expression form file (from console by default)";
