@@ -4,20 +4,35 @@
 const int STR_LENGTH = 201;
 char expression[STR_LENGTH];
 
+void usage() {
+    std::cout << "\nUSAGE: ./prog [ --forward ] [ --reverse ] [ --help ]\n";
+    std::cout << "              [ --file <file_name> <form=(--forward, --reverse)> ]\n";
+    std::cout << "\n------------------------------------Flags meaning-----------------------------------\n\n";
+    //std::cout << "./prog < '--file' = from console by default > < 'file_name' > < FLAG[ --forward, --reverse ] >" << std::endl;
+    std::cout << "--forward  ------>  enter mathematical expression in normalized form" << std::endl;
+    std::cout << "--reverse  ------>  enter mathematical expression in reverse polish notation form" << std::endl;
+    std::cout << "--file     ------>  read mathematical expression form file (from console by default)";
+    std::cout << std::endl;
+}
+
 void read_from_cin() {
     std::cin.read(expression, STR_LENGTH - 1);
     int s = std::cin.gcount();
     expression[s] = '\0';
 }
 
-void read_from_file(char *in_name) {
+int read_from_file(char *in_name) {
     std::ifstream in_f;
     in_f.open(in_name);
     char sym;
     int i = 0;
-    while (in_f >> sym)
-        expression[i++] = sym;
-    in_f.close();
+    if (in_f.is_open()) {
+        while (in_f >> sym)
+            expression[i++] = sym;
+        in_f.close();
+        return 0;
+    }
+    return 1;
 }
 
 int is_digit(char a) {
