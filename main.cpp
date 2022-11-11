@@ -2,27 +2,32 @@
 #include <cstring>
 #include "functions.h"
 
-const char* flags[3] = {
+const char* flags[4] = {
     "--forward",
     "--reverse",
-    "--file"
+    "--file",
+    "--help"
 };
 
 int main(int argc, char ** argv) {
     switch (argc) {
         case 1:
-            std::cerr << "##### Nothing was read #####\n";
+            std::cerr << "##### Flags weren't read #####\n";
             usage();
             exit(1);
         case 2:
+            if (!strcmp(argv[1], flags[3])) {
+                usage();
+                exit(0);
+            }
             if (!strcmp(argv[1], flags[0])) {
+                std::cout << "Enter a mathematical expression in inormalized form:\n>> ";
                 read_from_cin();
-                std::cout << "---Enter a mathematical expression in inormalized form---\n";
                 forward();
             }
             else if (!strcmp(argv[1], flags[1])) {
+                std::cout << "Enter a mathematical expression in reverse polish notation form:\n>> ";
                 read_from_cin();
-                std::cout << "---Enter mathematical expression in reverse polish notation form---\n";
                 reverse();
             }
             else {
@@ -30,6 +35,7 @@ int main(int argc, char ** argv) {
                 usage();
                 exit(1);
             }
+            break;
         case 4:
             if (!strcmp(argv[1], flags[2])) {
                 char *filename = argv[2];
@@ -39,11 +45,11 @@ int main(int argc, char ** argv) {
                     exit(1);
                 }
                 if (!strcmp(argv[3], flags[0])) {
-                    std::cout << "---Enter a mathematical expression in inormalized form---\n";
+                    std::cout << "A mathematical expression in inormalized form\n";
                     forward();
                 }
                 else if (!strcmp(argv[3], flags[1])) {
-                    std::cout << "---Enter mathematical expression in reverse polish notation form---\n";
+                    std::cout << "A mathematical expression in reverse polish notation form\n";
                     reverse();
                 }
             }
@@ -52,8 +58,9 @@ int main(int argc, char ** argv) {
                 usage();
                 exit(1);
             }
+            break;
         default:
-            std::cerr << "##### Worng flags or flags weren't entered #####\n";
+            std::cerr << "##### Worng flags #####\n";
             usage();
             exit(1);
     }

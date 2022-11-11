@@ -3,6 +3,10 @@
 
 const int STR_LENGTH = 201;
 char expression[STR_LENGTH];
+char symbols[100];
+int numbers[100];
+int top_s = 0; int top_n = 0;
+int exp_pointer = 0;
 
 void usage() {
     std::cout << "\nUSAGE: ./prog [ --forward ] [ --reverse ] [ --help ]\n";
@@ -11,7 +15,7 @@ void usage() {
     std::cout << "--forward  ------>  enter mathematical expression in normalized form" << std::endl;
     std::cout << "--reverse  ------>  enter mathematical expression in reverse polish notation form" << std::endl;
     std::cout << "--file     ------>  read mathematical expression form file (from console by default)";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 }
 
 void read_from_cin() {
@@ -47,6 +51,23 @@ int is_op(char a) {
     return 0;
 }
 
+int get_full_num() {
+    int a = expression[exp_pointer++] - '0';
+    while (is_digit(expression[exp_pointer])) 
+        a = a * 10 + expression[exp_pointer++] - '0';
+    return a;
+}
+
+int next_char() {
+    while (!is_op(expression[exp_pointer]) &&
+           !is_digit(expression[exp_pointer])) {
+        if (!expression[exp_pointer])
+            return 1;
+        exp_pointer++;
+    }
+    return 0;
+}
+
 int use_op(int a, int b, char op) {
     switch (op) {
         case '+': return a + b;
@@ -54,7 +75,25 @@ int use_op(int a, int b, char op) {
         case '*': return a * b;
         case '/': return a / b;    
     }
-    return -1;
+    return 1;
+}
+
+int division_by_zero(int b, char op) {
+    if (!b and op == '/')
+        return 1;
+    return 0;
+}
+
+int count() {
+    char op = symbols[--top_s];
+    int a = numbers[--top_n];
+    int b = numbers[--top_n];
+    if (division_by_zero(a, op)) {
+        std::cerr << "\n##### Division by zero #####\n";
+        exit(1);
+    }
+    int answer = use_op(b, a, op);
+    return answer; 
 }
 
 int preceden(char a, char b) {
@@ -71,29 +110,23 @@ int preceden(char a, char b) {
 }
 
 int forward() {
-    char symbols[100];
-    int numbers[100];
-    int top_s = 0; int top_n = 0;
-    int exp_pointer = 0;
     char token = expression[0];
-    char op;
-    int a, b;
+    int result;
+    int curr_num;
     while ((token = expression[exp_pointer++])) {
         if (is_digit(token)) {
-            a = token - '0';
+            curr_num = token - '0';
             while (is_digit(expression[exp_pointer])) {
                 token = expression[exp_pointer++];
-                a = a * 10 + token - '0';
+                curr_num = curr_num * 10 + token - '0';
             }
-            numbers[top_n++] = a;
+            numbers[top_n++] = curr_num;
         }
         else if (is_op(token)) {
             while (top_s != 0 && 
                    preceden(token, symbols[top_s - 1])) {
-                op = symbols[--top_s];
-                a = numbers[--top_n];
-                b = numbers[--top_n];
-                numbers[top_n++] = use_op(b, a, op);
+                result = count();
+                numbers[top_n++] = result;
             }
             symbols[top_s++] = token;
         }
@@ -101,21 +134,18 @@ int forward() {
             symbols[top_s++] = token;
         else if (token == ')'){
             while (symbols[top_s - 1] != '(') {
-                a = numbers[--top_n];
-                b = numbers[--top_n];
-                op = symbols[--top_s];
-                numbers[top_n++] = use_op(b, a, op);
+                result = count();
+                numbers[top_n++] = result;
             }
             top_s--;
         }
     }
     while (top_s != 0) {
-        op = symbols[--top_s];
-        a = numbers[--top_n];
-        b = numbers[--top_n];
-        numbers[top_n++] = use_op(b, a, op);
+        result = count();
+        numbers[top_n++] = result;
     }  
-    std::cout << std::endl << "Answer: " << numbers[--top_n] << std::endl;
+    std::cout << std::endl << "Answer: " 
+              << numbers[--top_n] << std::endl;
     return 0;
 }
 
@@ -123,29 +153,25 @@ int forward() {
 int reverse() {
     int a, b;
     char op;
-    int exp_pointer = 0;
-    a = expression[exp_pointer++] - '0';
-    while (is_digit(expression[exp_pointer])) {
-        a = a * 10 + expression[exp_pointer++] - '0';
-    }
+    a = get_full_num();
+    next_char();
     
-    while (expression[exp_pointer]) {
-        if (!is_digit(expression[exp_pointer])) {
-            exp_pointer++;
-            continue;
-        }
-        b = expression[exp_pointer++] - '0';
-        while (is_digit(expression[exp_pointer]))
-            b = b * 10 + expression[exp_pointer++] - '0';
-
-        while (!is_op(expression[exp_pointer])) 
-            exp_pointer++;
+    while (expression[exp_pointer] - ' ' > 0) {
+        b = get_full_num();
+        next_char();
         op = expression[exp_pointer++];
 
+        if (division_by_zero(b, op)) {
+            std::cerr << "\n##### Division by zero #####\n";
+            exit(1);
+        }
         a = use_op(a, b, op);
+        if (next_char())
+            break;
     }
 
-    std::cout << std::endl << "Answer: " << a << std::endl;
+    std::cout << std::endl << "Answer: " 
+              << a << std::endl;
     return 0;
 }
 
