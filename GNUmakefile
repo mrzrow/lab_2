@@ -6,3 +6,6 @@ prog: $(OBJS)
 .PHONY: clean
 clean:
 	$(RM) $(OBJS)
+
+distclean: clean
+	$(RM) prog

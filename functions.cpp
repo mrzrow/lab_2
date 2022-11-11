@@ -153,10 +153,11 @@ int forward() {
 int reverse() {
     int a, b;
     char op;
+    next_char();
     a = get_full_num();
     next_char();
     
-    while (expression[exp_pointer] - ' ' > 0) {
+    while (true) {
         b = get_full_num();
         next_char();
         op = expression[exp_pointer++];
